@@ -1,0 +1,1654 @@
+{
+  "info": {
+    "name": "Multiteatro API",
+    "description": "Cheat sheet Postman - Multiteatro. Login primero: guarda el token en la variable {{token}} (automatica). Teatros/Salas seed: t1,t2 | Salas:1,2 | Obras:1,2 | TipoAsiento:1,2 | Funciones:1,2,3 | Asientos libres func1: 4,6,8,9,10,11. Usuarios: superadmin@multiteatroflores.com/superadmin123 (SUPERADMIN) | marta@teatrolanus.com/admin123 (ADMIN t1) | lautaro@example.com/cliente123 (CLIENTE).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0) Auth (sin token)",
+      "item": [
+        {
+          "name": "Login SUPERADMIN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Devuelve {token, usuario}. Copia el token a la variable {{token}} de la coleccion. Requiere Content-Type: application/json.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"superadmin@multiteatroflores.com\",\n  \"password\": \"superadmin123\"\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('token', j.token);",
+                  "console.log('token guardado:', j.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login ADMIN (marta@teatrolanus.com)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"marta@teatrolanus.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json(); pm.collectionVariables.set('token', j.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login CLIENTE (lautaro@example.com)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"lautaro@example.com\",\n  \"password\": \"cliente123\"\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json(); pm.collectionVariables.set('token', j.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register (nuevo CLIENTE)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/register",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nuevo\",\n  \"email\": \"nuevo@example.com\",\n  \"password\": \"clave123\"\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/logout",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "1) Teatro",
+      "item": [
+        {
+          "name": "GET /api/teatros",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/teatros",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "teatros"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/teatros/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/teatros/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "teatros",
+                "1"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/teatros (SUPERADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/teatros",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "teatros"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Teatro Nuevo\",\n  \"direccion\": \"Av 123\",\n  \"admin\": {\n    \"id\": 2\n  }\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /api/teatros/{id} (admin del teatro)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/teatros/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "teatros",
+                "1"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Teatro Lanus\",\n  \"direccion\": \"Av. Hipolito Yrigoyen 3200\"\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/teatros/{id} (SUPERADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/teatros/6",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "teatros",
+                "6"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "2) Sala",
+      "item": [
+        {
+          "name": "GET /api/salas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/salas",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "salas"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/salas/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/salas/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "salas",
+                "1"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/salas (admin del teatro)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/salas",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "salas"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sala Nueva\",\n  \"capacidad\": 100,\n  \"teatro\": {\n    \"id\": 1\n  }\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /api/salas/{id}",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/salas/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "salas",
+                "1"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sala Principal\",\n  \"capacidad\": 12\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/salas/{id}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/salas/2",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "salas",
+                "2"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "3) Obra",
+      "item": [
+        {
+          "name": "GET /api/obras",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/obras",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "obras"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/obras/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/obras/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "obras",
+                "1"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/obras (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/obras",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "obras"
+              ]
+            },
+            "description": "clasificacion es obligatoria (NOT NULL).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Hamlet\",\n  \"clasificacion\": \"+13\",\n  \"descripcion\": \"Tragedia de Shakespeare.\",\n  \"duracionMinutos\": 120\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /api/obras/{id}",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/obras/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "obras",
+                "1"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"El Enfermo Imaginario\",\n  \"descripcion\": \"...\",\n  \"duracionMinutos\": 90\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/obras/{id}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/obras/2",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "obras",
+                "2"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "4) Tipo Asiento (path con guion)",
+      "item": [
+        {
+          "name": "GET /api/tipos-asiento",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tipos-asiento",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tipos-asiento"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/tipos-asiento/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tipos-asiento/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tipos-asiento",
+                "1"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/tipos-asiento (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tipos-asiento",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tipos-asiento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Platea\",\n  \"precio\": 12000.0\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /api/tipos-asiento/{id}",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tipos-asiento/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tipos-asiento",
+                "1"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Standard\",\n  \"precio\": 5000\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/tipos-asiento/{id}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tipos-asiento/2",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tipos-asiento",
+                "2"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "5) Asiento",
+      "item": [
+        {
+          "name": "GET /api/asientos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/asientos",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "asientos"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/asientos/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/asientos/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "asientos",
+                "1"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/asientos (admin del teatro)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/asientos",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "asientos"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fila\": \"C\",\n  \"numero\": 1,\n  \"sala\": {\n    \"id\": 1\n  },\n  \"tipoAsiento\": {\n    \"id\": 1\n  }\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /api/asientos/{id}",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/asientos/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "asientos",
+                "1"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fila\": \"A\",\n  \"numero\": 1,\n  \"tipoAsiento\": {\n    \"id\": 1\n  }\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/asientos/{id}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/asientos/12",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "asientos",
+                "12"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "6) Funcion",
+      "item": [
+        {
+          "name": "GET /api/funciones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/funciones",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "funciones"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/funciones/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/funciones/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "funciones",
+                "1"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/funciones (admin del teatro)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/funciones",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "funciones"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fechaHora\": \"2026-11-01T20:00:00\",\n  \"precio\": 5000.0,\n  \"obra\": {\n    \"id\": 1\n  },\n  \"sala\": {\n    \"id\": 1\n  }\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /api/funciones/{id}",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/funciones/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "funciones",
+                "1"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fechaHora\": \"2026-10-03T20:00:00\",\n  \"precio\": 5000.0,\n  \"sala\": {\n    \"id\": 1\n  }\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/funciones/{id}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/funciones/3",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "funciones",
+                "3"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "7) Compra",
+      "item": [
+        {
+          "name": "GET /api/compras",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/compras",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "compras"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/compras (asientos 4,6 libres en func 1)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/compras",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "compras"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionId\": 1,\n  \"asientoIds\": [\n    4,\n    6\n  ]\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/compras MISMO asiento otra vez -> 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/compras",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "compras"
+              ]
+            },
+            "description": "Repeat: el asiento 4 ya fue comprado en la funcion 1. Esperado 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"funcionId\": 1,\n  \"asientoIds\": [\n    4\n  ]\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8) Entrada",
+      "item": [
+        {
+          "name": "GET /api/entradas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/entradas",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "entradas"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "DELETE /api/entradas/{id} (dueno o SUPERADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/entradas/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "entradas",
+                "1"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "9) Usuario",
+      "item": [
+        {
+          "name": "GET /api/usuarios (SUPERADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/usuarios",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/usuarios (SUPERADMIN crea ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/usuarios",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nuevo Admin\",\n  \"email\": \"nuevo_admin@example.com\",\n  \"password\": \"clave123\",\n  \"rol\": \"ADMIN\"\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /api/usuarios/{id} (passwordHash = clave EN CLARO)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/usuarios/4",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "usuarios",
+                "4"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Lautaro Molina\",\n  \"email\": \"lautaro@example.com\",\n  \"passwordHash\": \"cliente123\"\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/usuarios/{id} (SUPERADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/usuarios/5",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "usuarios",
+                "5"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "10) Casos de error (401/403/409)",
+      "item": [
+        {
+          "name": "GET protegida SIN token -> 401",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/teatros",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "teatros"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET protegida token INVENTADO -> 401",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer token-invalido"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/teatros",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "teatros"
+              ]
+            },
+            "description": "Esperado 401: falta header Authorization, no usa prefijo Bearer, o el token no existe."
+          }
+        },
+        {
+          "name": "POST /api/teatros como CLIENTE -> 403",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/teatros",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "teatros"
+              ]
+            },
+            "description": "Con token de CLIENTE. Esperado 403 'No tenes permisos para esta accion'.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"No\",\n  \"direccion\": \"No\",\n  \"capacidad\": 1\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        {
+          "name": "Login password INCORRECTA -> 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Esperado 401 'Credenciales invalidas'.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"lautaro@example.com\",\n  \"password\": \"mal\"\n}"
+            },
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ]
+}
