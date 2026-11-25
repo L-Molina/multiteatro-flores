@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tpouade.multiteatro.exception.AccesoDenegadoException;
+import com.tpouade.multiteatro.exception.RecursoNoEncontradoException;
 import com.tpouade.multiteatro.model.Usuario;
 import com.tpouade.multiteatro.security.AutorizacionService;
 import com.tpouade.multiteatro.security.ContextoSesion;
@@ -70,7 +71,7 @@ public class UsuarioController {
     @PutMapping("{id}")
     public Usuario updateUsuario(@PathVariable Long id, @RequestBody Usuario cambios, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
-        Usuario usuario = usuarioService.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Usuario usuario = usuarioService.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
 
         boolean esSuperadmin = actual.getRol() == Usuario.Rol.SUPERADMIN;
         boolean esSelf = actual.getId().equals(usuario.getId());

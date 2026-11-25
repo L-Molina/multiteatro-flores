@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tpouade.multiteatro.dto.AsientoFuncionDTO;
+import com.tpouade.multiteatro.exception.RecursoNoEncontradoException;
 import com.tpouade.multiteatro.model.Funcion;
 import com.tpouade.multiteatro.model.Obra;
 import com.tpouade.multiteatro.model.Sala;
@@ -43,45 +45,67 @@ public class FuncionController {
         this.autorizacionService = autorizacionService;
     }
 
+    // Publico: un visitante puede ver la cartelera antes de registrarse.
     @GetMapping
-    public List<Funcion> getAllFunciones(HttpServletRequest request) {
-        contextoSesion.usuarioActual(request);
+    public List<Funcion> getAllFunciones() {
         return funcionService.findAll();
     }
 
+    // Publico: detalle de una funcion para decidir si comprar.
     @GetMapping("{id}")
-    public Funcion getFuncion(@PathVariable Long id, HttpServletRequest request) {
+    public Funcion getFuncion(@PathVariable Long id) {
+        return funcionService.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Función no encontrada"));
+    }
+
+    /**
+     * CU-04: mapa de butacas de la funcion. Requiere login porque a partir de
+     * aca el visitante ya elige sala, tipo de asiento y ubicacion.
+     */
+    @GetMapping("{id}/asientos")
+    public List<AsientoFuncionDTO> getAsientosDeFuncion(@PathVariable Long id, HttpServletRequest request) {
         contextoSesion.usuarioActual(request);
-        return funcionService.findById(id).orElseThrow(() -> new RuntimeException("Función no encontrada"));
+        return funcionService.findAsientosDeFuncion(id);
     }
 
     @PostMapping
     public Funcion createFuncion(@RequestBody Funcion funcion, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
         Sala sala = salaRepository.findById(funcion.getSala().getId())
-                .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Sala no encontrada"));
         autorizacionService.requiereAdminDeTeatro(actual, sala.getTeatro());
 
         Obra obra = obraRepository.findById(funcion.getObra().getId())
-                .orElseThrow(() -> new RuntimeException("Obra no encontrada"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Obra no encontrada"));
         funcion.setSala(sala);
         funcion.setObra(obra);
+
+        // Si no se informa precio, la funcion hereda el precio base de la obra.
+        if (funcion.getPrecio() == null) {
+            funcion.setPrecio(obra.getPrecio().doubleValue());
+        }
         return funcionService.save(funcion);
     }
 
     @PutMapping("{id}")
     public Funcion updateFuncion(@PathVariable Long id, @RequestBody Funcion cambios, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
-        Funcion funcion = funcionService.findById(id).orElseThrow(() -> new RuntimeException("Función no encontrada"));
+        Funcion funcion = funcionService.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Función no encontrada"));
         autorizacionService.requiereAdminDeTeatro(actual, funcion.getSala().getTeatro());
 
         funcion.setFechaHora(cambios.getFechaHora());
         funcion.setPrecio(cambios.getPrecio());
         if (cambios.getSala() != null && cambios.getSala().getId() != null) {
             Sala sala = salaRepository.findById(cambios.getSala().getId())
-                    .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Sala no encontrada"));
             autorizacionService.requiereAdminDeTeatro(actual, sala.getTeatro());
             funcion.setSala(sala);
+        }
+        if (cambios.getObra() != null && cambios.getObra().getId() != null) {
+            Obra obra = obraRepository.findById(cambios.getObra().getId())
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Obra no encontrada"));
+            funcion.setObra(obra);
         }
         return funcionService.save(funcion);
     }
@@ -89,7 +113,8 @@ public class FuncionController {
     @DeleteMapping("{id}")
     public void deleteFuncion(@PathVariable Long id, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
-        Funcion funcion = funcionService.findById(id).orElseThrow(() -> new RuntimeException("Función no encontrada"));
+        Funcion funcion = funcionService.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Función no encontrada"));
         autorizacionService.requiereAdminDeTeatro(actual, funcion.getSala().getTeatro());
         funcionService.deleteById(id);
     }

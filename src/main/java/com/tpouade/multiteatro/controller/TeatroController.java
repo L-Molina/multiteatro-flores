@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tpouade.multiteatro.exception.RecursoNoEncontradoException;
 import com.tpouade.multiteatro.model.Teatro;
 import com.tpouade.multiteatro.model.Usuario;
 import com.tpouade.multiteatro.repository.UsuarioRepository;
@@ -37,16 +38,17 @@ public class TeatroController {
         this.autorizacionService = autorizacionService;
     }
 
+    // Publico: el visitante puede elegir el teatro desde la cartelera.
     @GetMapping
-    public List<Teatro> getAllTeatros(HttpServletRequest request) {
-        contextoSesion.usuarioActual(request);
+    public List<Teatro> getAllTeatros() {
         return teatroService.findAll();
     }
 
+    // Publico: detalle del teatro antes de iniciar sesion.
     @GetMapping("{id}")
-    public Teatro getTeatro(@PathVariable Long id, HttpServletRequest request) {
-        contextoSesion.usuarioActual(request);
-        return teatroService.findById(id).orElseThrow(() -> new RuntimeException("Teatro no encontrado"));
+    public Teatro getTeatro(@PathVariable Long id) {
+        return teatroService.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Teatro no encontrado"));
     }
 
     @PostMapping
@@ -56,7 +58,7 @@ public class TeatroController {
 
         if (teatro.getAdmin() != null && teatro.getAdmin().getId() != null) {
             Usuario admin = usuarioRepository.findById(teatro.getAdmin().getId())
-                    .orElseThrow(() -> new RuntimeException("Usuario admin no encontrado"));
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Usuario admin no encontrado"));
             teatro.setAdmin(admin);
         }
         return teatroService.save(teatro);
@@ -65,7 +67,8 @@ public class TeatroController {
     @PutMapping("{id}")
     public Teatro updateTeatro(@PathVariable Long id, @RequestBody Teatro cambios, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
-        Teatro teatro = teatroService.findById(id).orElseThrow(() -> new RuntimeException("Teatro no encontrado"));
+        Teatro teatro = teatroService.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Teatro no encontrado"));
         autorizacionService.requiereAdminDeTeatro(actual, teatro);
 
         teatro.setNombre(cambios.getNombre());
@@ -77,6 +80,9 @@ public class TeatroController {
     public void deleteTeatro(@PathVariable Long id, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
         autorizacionService.requiereRol(actual, Usuario.Rol.SUPERADMIN);
+        if (teatroService.findById(id).isEmpty()) {
+            throw new RecursoNoEncontradoException("Teatro no encontrado");
+        }
         teatroService.deleteById(id);
     }
 }

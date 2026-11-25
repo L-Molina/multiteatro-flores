@@ -1,6 +1,7 @@
 package com.tpouade.multiteatro.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.tpouade.multiteatro.exception.AsientoNoDisponibleException;
+import com.tpouade.multiteatro.exception.RecursoNoEncontradoException;
+import com.tpouade.multiteatro.exception.SolicitudInvalidaException;
 import com.tpouade.multiteatro.model.Asiento;
 import com.tpouade.multiteatro.model.Compra;
 import com.tpouade.multiteatro.model.Entrada;
@@ -56,8 +59,26 @@ public class CompraService {
 
     public Compra comprarEntradas(Usuario usuario, Long funcionId, List<Long> asientoIds) {
         Funcion funcion = funcionRepository.findById(funcionId)
-                .orElseThrow(() -> new RuntimeException("Función no encontrada"));
-        List<Asiento> asientos = asientoRepository.findAllById(asientoIds);
+                .orElseThrow(() -> new RecursoNoEncontradoException("Función no encontrada"));
+
+        if (asientoIds == null || asientoIds.isEmpty()) {
+            throw new SolicitudInvalidaException("Tenés que elegir al menos un asiento");
+        }
+        List<Long> asientoIdsUnicos = asientoIds.stream().distinct().toList();
+        if (asientoIdsUnicos.size() != asientoIds.size()) {
+            throw new SolicitudInvalidaException("No se puede comprar la misma butaca dos veces");
+        }
+
+        List<Asiento> asientos = asientoRepository.findAllById(asientoIdsUnicos);
+        if (asientos.size() != asientoIdsUnicos.size()) {
+            throw new RecursoNoEncontradoException("Alguno de los asientos no existe");
+        }
+        for (Asiento asiento : asientos) {
+            if (!asiento.getSala().getId().equals(funcion.getSala().getId())) {
+                throw new SolicitudInvalidaException(
+                        "Todos los asientos deben pertenecer a la sala de la función");
+            }
+        }
 
         Compra compra = new Compra();
         compra.setUsuario(usuario);
@@ -75,7 +96,12 @@ public class CompraService {
             entrada.setCompra(compra);
             entrada.setFuncion(funcion);
             entrada.setAsiento(asiento);
-            entrada.setPrecioPagado(BigDecimal.valueOf(asiento.getTipoAsiento().getPrecio()));
+            // Precio base de la función (heredado de la obra) por el factor
+            // del tipo de butaca: Normal x1.0, VIP x1.3.
+            BigDecimal precioUnitario = BigDecimal.valueOf(funcion.getPrecio())
+                    .multiply(BigDecimal.valueOf(asiento.getTipoAsiento().getMultiplicador()))
+                    .setScale(2, RoundingMode.HALF_UP);
+            entrada.setPrecioPagado(precioUnitario);
             entrada.setEstado("ACTIVA");
             entradas.add(entrada);
             total = total.add(entrada.getPrecioPagado());

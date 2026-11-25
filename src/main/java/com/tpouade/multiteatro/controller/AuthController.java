@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tpouade.multiteatro.exception.ConflictoException;
 import com.tpouade.multiteatro.exception.CredencialesInvalidasException;
+import com.tpouade.multiteatro.exception.SolicitudInvalidaException;
 import com.tpouade.multiteatro.model.Usuario;
 import com.tpouade.multiteatro.repository.UsuarioRepository;
 import com.tpouade.multiteatro.security.SesionService;
@@ -48,12 +50,16 @@ public class AuthController {
     @PostMapping("register")
     public Map<String, Object> register(@RequestBody Map<String, String> body) {
         if (body.get("name") == null || body.get("email") == null || body.get("password") == null) {
-            throw new RuntimeException("Faltan datos: name, email, password");
+            throw new SolicitudInvalidaException("Faltan datos: name, email, password");
+        }
+        String email = body.get("email").trim().toLowerCase();
+        if (usuarioRepository.findByEmail(email).isPresent()) {
+            throw new ConflictoException("Ya existe una cuenta con ese correo electrónico");
         }
 
         Usuario usuario = new Usuario();
         usuario.setNombre(body.get("name"));
-        usuario.setEmail(body.get("email"));
+        usuario.setEmail(email);
         usuario.setPasswordHash(passwordEncoder.encode(body.get("password")));
         usuario.setRol(Usuario.Rol.CLIENTE);
 

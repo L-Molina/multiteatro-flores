@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tpouade.multiteatro.exception.RecursoNoEncontradoException;
 import com.tpouade.multiteatro.model.Asiento;
 import com.tpouade.multiteatro.model.Sala;
 import com.tpouade.multiteatro.model.TipoAsiento;
@@ -52,18 +53,18 @@ public class AsientoController {
     @GetMapping("{id}")
     public Asiento getAsiento(@PathVariable Long id, HttpServletRequest request) {
         contextoSesion.usuarioActual(request);
-        return asientoService.findById(id).orElseThrow(() -> new RuntimeException("Asiento no encontrado"));
+        return asientoService.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Asiento no encontrado"));
     }
 
     @PostMapping
     public Asiento createAsiento(@RequestBody Asiento asiento, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
         Sala sala = salaRepository.findById(asiento.getSala().getId())
-                .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Sala no encontrada"));
         autorizacionService.requiereAdminDeTeatro(actual, sala.getTeatro());
 
         TipoAsiento tipoAsiento = tipoAsientoRepository.findById(asiento.getTipoAsiento().getId())
-                .orElseThrow(() -> new RuntimeException("Tipo de asiento no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Tipo de asiento no encontrado"));
         asiento.setSala(sala);
         asiento.setTipoAsiento(tipoAsiento);
         return asientoService.save(asiento);
@@ -72,14 +73,14 @@ public class AsientoController {
     @PutMapping("{id}")
     public Asiento updateAsiento(@PathVariable Long id, @RequestBody Asiento cambios, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
-        Asiento asiento = asientoService.findById(id).orElseThrow(() -> new RuntimeException("Asiento no encontrado"));
+        Asiento asiento = asientoService.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Asiento no encontrado"));
         autorizacionService.requiereAdminDeTeatro(actual, asiento.getSala().getTeatro());
 
         asiento.setFila(cambios.getFila());
         asiento.setNumero(cambios.getNumero());
         if (cambios.getTipoAsiento() != null && cambios.getTipoAsiento().getId() != null) {
             TipoAsiento tipoAsiento = tipoAsientoRepository.findById(cambios.getTipoAsiento().getId())
-                    .orElseThrow(() -> new RuntimeException("Tipo de asiento no encontrado"));
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Tipo de asiento no encontrado"));
             asiento.setTipoAsiento(tipoAsiento);
         }
         return asientoService.save(asiento);
@@ -88,7 +89,7 @@ public class AsientoController {
     @DeleteMapping("{id}")
     public void deleteAsiento(@PathVariable Long id, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
-        Asiento asiento = asientoService.findById(id).orElseThrow(() -> new RuntimeException("Asiento no encontrado"));
+        Asiento asiento = asientoService.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Asiento no encontrado"));
         autorizacionService.requiereAdminDeTeatro(actual, asiento.getSala().getTeatro());
         asientoService.deleteById(id);
     }

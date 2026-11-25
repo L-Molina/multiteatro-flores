@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tpouade.multiteatro.exception.RecursoNoEncontradoException;
 import com.tpouade.multiteatro.model.TipoAsiento;
 import com.tpouade.multiteatro.model.Usuario;
 import com.tpouade.multiteatro.security.AutorizacionService;
@@ -43,7 +44,8 @@ public class TipoAsientoController {
     @GetMapping("{id}")
     public TipoAsiento getTipoAsiento(@PathVariable Long id, HttpServletRequest request) {
         contextoSesion.usuarioActual(request);
-        return tipoAsientoService.findById(id).orElseThrow(() -> new RuntimeException("Tipo de asiento no encontrado"));
+        return tipoAsientoService.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Tipo de asiento no encontrado"));
     }
 
     @PostMapping
@@ -59,9 +61,9 @@ public class TipoAsientoController {
         Usuario actual = contextoSesion.usuarioActual(request);
         autorizacionService.requiereRol(actual, Usuario.Rol.ADMIN);
         TipoAsiento tipoAsiento = tipoAsientoService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tipo de asiento no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Tipo de asiento no encontrado"));
         tipoAsiento.setNombre(cambios.getNombre());
-        tipoAsiento.setPrecio(cambios.getPrecio());
+        tipoAsiento.setMultiplicador(cambios.getMultiplicador());
         return tipoAsientoService.save(tipoAsiento);
     }
 
@@ -69,6 +71,9 @@ public class TipoAsientoController {
     public void deleteTipoAsiento(@PathVariable Long id, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
         autorizacionService.requiereRol(actual, Usuario.Rol.ADMIN);
+        if (tipoAsientoService.findById(id).isEmpty()) {
+            throw new RecursoNoEncontradoException("Tipo de asiento no encontrado");
+        }
         tipoAsientoService.deleteById(id);
     }
 }

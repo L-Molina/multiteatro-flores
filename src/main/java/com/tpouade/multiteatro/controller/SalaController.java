@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tpouade.multiteatro.exception.RecursoNoEncontradoException;
 import com.tpouade.multiteatro.model.Sala;
 import com.tpouade.multiteatro.model.Teatro;
 import com.tpouade.multiteatro.model.Usuario;
@@ -47,14 +48,14 @@ public class SalaController {
     @GetMapping("{id}")
     public Sala getSala(@PathVariable Long id, HttpServletRequest request) {
         contextoSesion.usuarioActual(request);
-        return salaService.findById(id).orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+        return salaService.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Sala no encontrada"));
     }
 
     @PostMapping
     public Sala createSala(@RequestBody Sala sala, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
         Teatro teatro = teatroRepository.findById(sala.getTeatro().getId())
-                .orElseThrow(() -> new RuntimeException("Teatro no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Teatro no encontrado"));
         autorizacionService.requiereAdminDeTeatro(actual, teatro);
         sala.setTeatro(teatro);
         return salaService.save(sala);
@@ -63,7 +64,7 @@ public class SalaController {
     @PutMapping("{id}")
     public Sala updateSala(@PathVariable Long id, @RequestBody Sala cambios, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
-        Sala sala = salaService.findById(id).orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+        Sala sala = salaService.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Sala no encontrada"));
         autorizacionService.requiereAdminDeTeatro(actual, sala.getTeatro());
 
         sala.setNombre(cambios.getNombre());
@@ -74,7 +75,7 @@ public class SalaController {
     @DeleteMapping("{id}")
     public void deleteSala(@PathVariable Long id, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
-        Sala sala = salaService.findById(id).orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+        Sala sala = salaService.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Sala no encontrada"));
         autorizacionService.requiereAdminDeTeatro(actual, sala.getTeatro());
         salaService.deleteById(id);
     }

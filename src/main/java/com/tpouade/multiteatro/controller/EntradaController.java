@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tpouade.multiteatro.exception.AccesoDenegadoException;
+import com.tpouade.multiteatro.exception.RecursoNoEncontradoException;
 import com.tpouade.multiteatro.model.Entrada;
 import com.tpouade.multiteatro.model.Usuario;
 import com.tpouade.multiteatro.security.ContextoSesion;
@@ -41,7 +42,7 @@ public class EntradaController {
     @DeleteMapping("{id}")
     public void cancelarEntrada(@PathVariable Long id, HttpServletRequest request) {
         Usuario actual = contextoSesion.usuarioActual(request);
-        Entrada entrada = entradaService.findById(id).orElseThrow(() -> new RuntimeException("Entrada no encontrada"));
+        Entrada entrada = entradaService.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Entrada no encontrada"));
 
         boolean esSuperadmin = actual.getRol() == Usuario.Rol.SUPERADMIN;
         boolean esPropietario = entrada.getCompra() != null

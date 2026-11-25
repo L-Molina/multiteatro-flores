@@ -20,6 +20,12 @@ public class TipoAsiento {
     @Column(nullable = false, length = 50)
     private String nombre;
 
+    /**
+     * Factor que se aplica al precio base de la funcion.
+     * Normal = 1.0, VIP = 1.3 (30% mas). El precio final NO vive aca:
+     * vive en la obra/funcion, porque una misma butaca puede usarse
+     * en funciones de distinto precio.
+     */
     @Column(nullable = false)
-    private Double precio;
+    private Double multiplicador;
 }
