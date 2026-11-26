@@ -12,6 +12,11 @@
 --  NOTA: la app tiene spring.jpa.hibernate.ddl-auto=none, es decir que
 --  Hibernate NO crea ni modifica el esquema. Este archivo es la unica
 --  fuente de verdad de la estructura de la base.
+--
+--  MIGRACION PARA UNA BASE YA EXISTENTE (no ejecutar en una base nueva):
+--      ALTER TABLE compra
+--        ADD COLUMN comprobante_url VARCHAR(255) NULL AFTER comprobante_nombre,
+--        ADD COLUMN comprobante_archivo VARCHAR(255) NULL AFTER comprobante_url;
 -- =====================================================================
 
 SET NAMES utf8mb4;
@@ -135,6 +140,16 @@ CREATE TABLE compra (
     estado      VARCHAR(20) NOT NULL DEFAULT 'CONFIRMADA',
     total       DECIMAL(10,2) NOT NULL,
     monto_total DOUBLE NOT NULL,
+    titular_nombre     VARCHAR(150),
+    titular_dni        VARCHAR(20),
+    titular_email      VARCHAR(150),
+    titular_telefono   VARCHAR(30),
+    titular_localidad  VARCHAR(100),
+    metodo_pago        VARCHAR(30),
+    pago_label         VARCHAR(60),
+    comprobante_nombre  VARCHAR(255),
+    comprobante_url     VARCHAR(255),
+    comprobante_archivo VARCHAR(255),
     KEY fk_compra_usuario (usuario_id),
     CONSTRAINT fk_compra_usuario FOREIGN KEY (usuario_id) REFERENCES usuario (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
