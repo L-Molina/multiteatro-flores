@@ -12,17 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 
-/**
- * Registro en memoria de butacas reservadas o vendidas por sesión.
- *
- * Es el equivalente backend de /api/ocupacion del dev server de Vite: permite
- * que dos pestañas o cuentas distintas vean en tiempo real qué butacas está
- * eligiendo la otra. Las reservas vencen solas si la pestaña deja de renovarlas.
- *
- * No reemplaza la verdad de la base: al confirmar la compra, POST /api/compras
- * sigue validando contra la tabla entrada. Este registro es solo una capa de
- * coordinación temporal para la UI.
- */
 @Service
 public class OcupacionService {
 

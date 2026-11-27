@@ -26,13 +26,6 @@ public class TicketService {
         this.entradaRepository = entradaRepository;
     }
 
-    /**
-     * Persiste los tickets.
-     *
-     * REQUIRES_NEW es obligatorio: lo invoca un listener AFTER_COMMIT, o sea
-     * cuando la transaccion de compra ya cerro y no hay ninguna activa. Sin una
-     * transaccion nueva, el save falla con "No active transaction".
-     */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<Ticket> crearTickets(List<DatosTicket> datos) {
         if (datos == null || datos.isEmpty()) {
@@ -67,7 +60,6 @@ public class TicketService {
         return ticketRepository.saveAllAndFlush(tickets);
     }
 
-    /** Codigo de ticket legible, unico. */
     public static String nuevoCodigo() {
         return "TCK-" + UUID.randomUUID().toString().substring(0, 10).toUpperCase(Locale.ROOT);
     }
